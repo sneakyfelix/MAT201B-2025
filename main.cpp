@@ -34,7 +34,7 @@ class MyApp : public App {
         }
 
         mesh.primitive(Mesh::POINTS);
-        imageMesh.primitive(Mesh::POINTS); // ← Same primitive
+        imageMesh.primitive(Mesh::POINTS); //
 
         for (int y = 0; y < image.height(); ++y) {
             for (int x = 0; x < image.width(); ++x) {
@@ -47,7 +47,7 @@ class MyApp : public App {
                 mesh.color(c);
                 mesh.texCoord(0.1, 0);
 
-                imageMesh.vertex(px, py, 0);  // ← Store original
+                imageMesh.vertex(px, py, 0);  
                 imageMesh.color(c);
                 imageMesh.texCoord(0.1, 0);
             }
@@ -94,7 +94,7 @@ for (int y = 0; y < image.height(); ++y) {
     }
 
     void onAnimate(double dt) override {
-        // could animate mesh here
+        
     }
 
     void onDraw(Graphics& g) override {
