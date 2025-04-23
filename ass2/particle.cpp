@@ -26,12 +26,13 @@ public:
 };
 
 
-class buddies
+class buddy 
 {
-public:
-  int i, j; // string names serves to refer to them //i and j r two particles
+  public:
+  int i, j; 
 
   float vibes;
+
 };
 
 
@@ -51,6 +52,8 @@ struct AlloApp : App
   Parameter dragFactor{"/dragFactor", "", 0.1, 0.0, 0.9};
   Parameter repulsionFactor{"/repulsionFactor", "", 0.1, 0.0, 10.9};
   Parameter boundarySize{"/boundSize", "", 1.0, 0.0, 10.9};
+  Parameter stiffness{"/stifnessfactor", "", 1.0, 0.0, 10.9};
+  
   //
 
   ShaderProgram pointShader;
@@ -63,6 +66,7 @@ struct AlloApp : App
 
   std::vector<spring> spring_list; // need to make it a member // vector holds a bunch of spring lists
   std::vector<like> like_list;
+  std::vector<buddy> buddy_list;
 
   void onInit() override
   {
@@ -74,6 +78,7 @@ struct AlloApp : App
     gui.add(dragFactor); // add parameter to GUI
     gui.add(repulsionFactor); // add parameter to GUI
     gui.add(boundarySize); // add parameter to GUI
+    gui.add(stiffness); // add parameter to GUI
     //
   }
 
@@ -160,6 +165,19 @@ struct AlloApp : App
       Vec3f f = displacement.normalize() * like.energy; //
       force[like.i] += f;
       force[like.j] += f; // make them both same so that theyre asymettrical
+    }
+
+
+    for (int k = 0; k < buddy_list.size(); ++k)
+    {
+      auto buddy = buddy_list[k];
+      // positions of the particle pair...
+      Vec3f a = mesh.vertices()[buddy.i]; //
+      Vec3f b = Vec3f(0,0,0);
+      Vec3f displacement = b - a;
+      Vec3f f = displacement.normalize() * buddy.vibes; //
+      force[buddy.i] += f;
+      force[buddy.j] += f; // make them both same so that theyre asymettrical
     }
 
 
@@ -266,7 +284,7 @@ struct AlloApp : App
       }
 
       // i and j are different particles ...
-      spring_list.push_back({i, j, 1.0, 5.0}); // default length and stiffness
+      spring_list.push_back({i, j, 1.0, stiffness}); // default length and stiffness
     }
 
     if (k.key() == '3')
@@ -280,6 +298,19 @@ struct AlloApp : App
       }
 
       like_list.push_back({i, j, 0.1});
+    }
+
+    if (k.key() == '4')
+    {
+      // choose 2 particles at random
+      int i = rnd::uniform(mesh.vertices().size());
+      int j = rnd::uniform(mesh.vertices().size());
+      while (i == j)
+      {
+        j = rnd::uniform(mesh.vertices().size());
+      }
+
+      buddy_list.push_back({i, j, 30.0});
     }
 
 
