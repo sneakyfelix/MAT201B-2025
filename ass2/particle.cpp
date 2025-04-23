@@ -50,6 +50,7 @@ struct AlloApp : App
   Parameter timeStep{"/timeStep", "", 0.1, 0.01, 0.6};
   Parameter dragFactor{"/dragFactor", "", 0.1, 0.0, 0.9};
   Parameter repulsionFactor{"/repulsionFactor", "", 0.1, 0.0, 10.9};
+  Parameter boundarySize{"/boundSize", "", 1.0, 0.0, 10.9};
   //
 
   ShaderProgram pointShader;
@@ -72,6 +73,7 @@ struct AlloApp : App
     gui.add(timeStep);   // add parameter to GUI
     gui.add(dragFactor); // add parameter to GUI
     gui.add(repulsionFactor); // add parameter to GUI
+    gui.add(boundarySize); // add parameter to GUI
     //
   }
 
@@ -139,12 +141,12 @@ struct AlloApp : App
     for (int k = 0; k < mesh.vertices().size(); ++k)
     {
 
-      float bound = floor(rnd::uniform(5.0f, 10.0f));
+     // float bound = floor(rnd::uniform(5.0f, 10.0f));
       Vec3f a = mesh.vertices()[k]; // make b the origin 
       Vec3f b = Vec3f(0,0,0);
       Vec3f displacement = b - a;
       float distance = displacement.mag();
-      Vec3f f = displacement.normalize() * (distance - bound); 
+      Vec3f f = displacement.normalize() * (distance - boundarySize); 
       force[k] += f;
     }
 
@@ -153,7 +155,7 @@ struct AlloApp : App
       auto like = like_list[k];
       // positions of the particle pair...
       Vec3f a = mesh.vertices()[like.i]; // hw is building springs between a and the origin not b
-      Vec3f b = Vec3f(0,0,0);
+      Vec3f b = mesh.vertices()[like.j];
       Vec3f displacement = b - a;
       Vec3f f = displacement.normalize() * like.energy; //
       force[like.i] += f;
@@ -183,7 +185,7 @@ struct AlloApp : App
         Vec3f direction = displacement.normalize();
         Vec3f f = direction * forceUnit;
         force[i] += f;
-        force[j] += f;
+        force[j] -= f;
 
         // i and j are a pair
         // apply and equal and possible force
@@ -264,7 +266,7 @@ struct AlloApp : App
       }
 
       // i and j are different particles ...
-      spring_list.push_back({i, j, 20, 5.0}); // default length and stiffness
+      spring_list.push_back({i, j, 1.0, 5.0}); // default length and stiffness
     }
 
     if (k.key() == '3')
